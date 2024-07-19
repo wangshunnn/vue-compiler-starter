@@ -1,5 +1,3 @@
-/* eslint-disable ts/no-unsafe-function-type */
-
 export interface CompilerOptions {
   warn?: Function // allow customizing warning in different environments; e.g. node
   modules?: Array<ModuleOptions> // platform specific modules; e.g. style; class
@@ -33,6 +31,21 @@ export interface CompilerOptions {
 
   // SFC analyzed script bindings from `compileScript()`
   bindings?: BindingMetadata
+}
+
+export interface CompiledResult {
+  ast: ASTElement | null
+  render: string
+  staticRenderFns: Array<string>
+  stringRenderFns?: Array<string>
+  errors?: Array<string | WarningMessage>
+  tips?: Array<string | WarningMessage>
+}
+
+export interface WarningMessage {
+  msg: string
+  start?: number
+  end?: number
 }
 
 export interface ModuleOptions {
@@ -213,7 +226,7 @@ export interface ASTExpression {
 
 export interface ASTModifiers { [key: string]: boolean }
 export type ASTIfConditions = Array<ASTIfCondition>
-export interface ASTIfCondition { exp: string | null, block: ASTElement }
+export interface ASTIfCondition { exp: string | undefined, block: ASTElement }
 
 export interface ASTDirective {
   name: string

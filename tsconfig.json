@@ -1,15 +1,33 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext"],
+    "jsx": "preserve",
+    "lib": ["ESNext", "dom"],
+    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "vue2/*": ["src/vue2/*"],
+      "vue3/*": ["src/vue3/*"],
+      "types2": ["src/vue2/types"],
+      "types3": ["src/vue3/types"],
+      "utils2": ["src/vue2/utils"],
+      "utils3": ["src/vue3/utils"],
+      "helpers2": ["src/vue2/helpers"],
+      "helpers3": ["src/vue3/helpers"],
+      "compiler/*": ["src/compiler/*"]
+    },
     "resolveJsonModule": true,
+    "types": ["node"],
     "strict": true,
     "strictNullChecks": true,
     "noEmit": true,
+    "outDir": "dist",
+    "sourceMap": true,
     "esModuleInterop": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["src", "packages/*/src"]
+
 }

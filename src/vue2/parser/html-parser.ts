@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-/* eslint-disable no-cond-assign */
+
 /**
  * Not type-checking this file because it's mostly vendor code.
  */
@@ -11,8 +11,8 @@
  * http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
  */
 
-import { isNonPhrasingTag, makeMap, no, unicodeRegExp } from './utils'
-import type { ASTAttr, CompilerOptions } from './types'
+import type { ASTAttr, CompilerOptions } from 'types2'
+import { isNonPhrasingTag, makeMap, no, unicodeRegExp } from 'utils2'
 
 // Regular Expressions for parsing tags and attributes
 const attribute
