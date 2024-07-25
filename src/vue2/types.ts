@@ -251,3 +251,326 @@ export interface ASTElementHandler {
   start?: number
   end?: number
 }
+declare const RefSymbol: unique symbol
+export declare const RawSymbol: unique symbol
+
+/**
+ * @internal
+ */
+export const RefFlag = `__v_isRef`
+
+export interface Ref<T = any> {
+  value: T
+  /**
+   * Type differentiator only.
+   * We need this to be in public d.ts but don't want it to show up in IDE
+   * autocomplete, so we use a private Symbol instead.
+   */
+  [RefSymbol]: true
+  /**
+   * @internal
+   */
+  dep?: any
+  /**
+   * @internal
+   */
+  [RefFlag]: true
+}
+/**
+ * @internal
+ */
+export interface VNodeData {
+  key?: string | number
+  slot?: string
+  ref?: string | Ref | ((el: any) => void)
+  is?: string
+  pre?: boolean
+  tag?: string
+  staticClass?: string
+  class?: any
+  staticStyle?: { [key: string]: any }
+  style?: string | Array<object> | object
+  normalizedStyle?: object
+  props?: { [key: string]: any }
+  attrs?: { [key: string]: string }
+  domProps?: { [key: string]: any }
+  hook?: { [key: string]: Function }
+  on?: { [key: string]: Function | Array<Function> }
+  nativeOn?: { [key: string]: Function | Array<Function> }
+  transition?: object
+  show?: boolean // marker for v-show
+  inlineTemplate?: {
+    render: Function
+    staticRenderFns: Array<Function>
+  }
+  directives?: Array<VNodeDirective>
+  keepAlive?: boolean
+  scopedSlots?: { [key: string]: Function }
+  model?: {
+    value: any
+    callback: Function
+  }
+
+  [key: string]: any
+}
+
+/**
+ * @internal
+ */
+export interface VNodeDirective {
+  name: string
+  rawName: string
+  value?: any
+  oldValue?: any
+  arg?: string
+  oldArg?: string
+  modifiers?: ASTModifiers
+  def?: object
+}
+
+type Component = any
+
+/**
+ * @internal
+ */
+// interface for vnodes in update modules
+export type VNodeWithData = VNode & {
+  tag: string
+  data: VNodeData
+  children: Array<VNode>
+  text: void
+  elm: any
+  ns: string | void
+  context: Component
+  key: string | number | undefined
+  parent?: VNodeWithData
+  componentOptions?: VNodeComponentOptions
+  componentInstance?: Component
+  isRootInsert: boolean
+}
+
+/**
+ * @internal
+ */
+export class VNode {
+  tag?: string
+  data: VNodeData | undefined
+  children?: Array<VNode> | null
+  text?: string
+  elm: Node | undefined
+  ns?: string
+  context?: Component // rendered in this component's scope
+  key: string | number | undefined
+  componentOptions?: VNodeComponentOptions
+  componentInstance?: Component // component instance
+  parent: VNode | undefined | null // component placeholder node
+
+  // strictly internal
+  raw: boolean // contains raw HTML? (server only)
+  isStatic: boolean // hoisted static node
+  isRootInsert: boolean // necessary for enter transition check
+  isComment: boolean // empty comment placeholder?
+  isCloned: boolean // is a cloned node?
+  isOnce: boolean // is a v-once node?
+  asyncFactory?: Function // async component factory function
+  asyncMeta: object | void
+  isAsyncPlaceholder: boolean
+  ssrContext?: object | void
+  fnContext: Component | void // real context vm for functional nodes
+  fnOptions?: ComponentOptions | null // for SSR caching
+  devtoolsMeta?: object | null // used to store functional render context for devtools
+  fnScopeId?: string | null // functional scope id support
+  isComponentRootElement?: boolean | null // for SSR directives
+
+  constructor(
+    tag?: string,
+    data?: VNodeData,
+    children?: Array<VNode> | null,
+    text?: string,
+    elm?: Node,
+    context?: Component,
+    componentOptions?: VNodeComponentOptions,
+    asyncFactory?: Function,
+  ) {
+    this.tag = tag
+    this.data = data
+    this.children = children
+    this.text = text
+    this.elm = elm
+    this.ns = undefined
+    this.context = context
+    this.fnContext = undefined
+    this.fnOptions = undefined
+    this.fnScopeId = undefined
+    this.key = data && data.key
+    this.componentOptions = componentOptions
+    this.componentInstance = undefined
+    this.parent = undefined
+    this.raw = false
+    this.isStatic = false
+    this.isRootInsert = true
+    this.isComment = false
+    this.isCloned = false
+    this.isOnce = false
+    this.asyncFactory = asyncFactory
+    this.asyncMeta = undefined
+    this.isAsyncPlaceholder = false
+  }
+
+  // DEPRECATED: alias for componentInstance for backwards compat.
+  /* istanbul ignore next */
+  get child(): Component | void {
+    return this.componentInstance
+  }
+}
+
+/**
+ * @internal
+ */
+export interface VNodeComponentOptions {
+  Ctor: any
+  propsData?: object
+  listeners?: Record<string, Function | Function[]>
+  children?: Array<VNode>
+  tag?: string
+}
+
+type InjectKey = string | symbol
+
+/**
+ * @internal
+ */
+export interface SetupContext {
+  attrs: Record<string, any>
+  listeners: Record<string, Function | Function[]>
+  slots: Record<string, () => VNode[]>
+  emit: (event: string, ...args: any[]) => any
+  expose: (exposed: Record<string, any>) => void
+}
+
+export interface PropOptions {
+  type?: Function | Array<Function> | null
+  default?: any
+  required?: boolean | null
+  validator?: Function | null
+}
+
+/**
+ * @internal
+ */
+export interface ComponentOptions {
+  // v3
+  setup?: (props: Record<string, any>, ctx: SetupContext) => unknown
+
+  [key: string]: any
+
+  componentId?: string
+
+  // data
+  data: object | Function | void
+  props?:
+    | string[]
+    | Record<string, Function | Array<Function> | null | PropOptions>
+  propsData?: object
+  computed?: {
+    [key: string]:
+      | Function
+      | {
+        get?: Function
+        set?: Function
+        cache?: boolean
+      }
+  }
+  methods?: { [key: string]: Function }
+  watch?: { [key: string]: Function | string }
+
+  // DOM
+  el?: string | Element
+  template?: string
+  render: (h: () => VNode) => VNode
+  renderError?: (h: () => VNode, err: Error) => VNode
+  staticRenderFns?: Array<() => VNode>
+
+  // lifecycle
+  beforeCreate?: Function
+  created?: Function
+  beforeMount?: Function
+  mounted?: Function
+  beforeUpdate?: Function
+  updated?: Function
+  activated?: Function
+  deactivated?: Function
+  beforeDestroy?: Function
+  destroyed?: Function
+  errorCaptured?: () => boolean | void
+  serverPrefetch?: Function
+  renderTracked?: (e: DebuggerEvent) => void
+  renderTriggerd?: (e: DebuggerEvent) => void
+
+  // assets
+  directives?: { [key: string]: object }
+  components?: { [key: string]: Component }
+  transitions?: { [key: string]: object }
+  filters?: { [key: string]: Function }
+
+  // context
+  provide?: Record<string | symbol, any> | (() => Record<string | symbol, any>)
+  inject?:
+    | { [key: string]: InjectKey | { from?: InjectKey, default?: any } }
+    | Array<string>
+
+  // component v-model customization
+  model?: {
+    prop?: string
+    event?: string
+  }
+
+  // misc
+  parent?: Component
+  mixins?: Array<object>
+  name?: string
+  extends?: Component | object
+  delimiters?: [string, string]
+  comments?: boolean
+  inheritAttrs?: boolean
+
+  // Legacy API
+  abstract?: any
+
+  // private
+  _isComponent?: true
+  _propKeys?: Array<string>
+  _parentVnode?: VNode
+  _parentListeners?: object | null
+  _renderChildren?: Array<VNode> | null
+  _componentTag: string | null
+  _scopeId: string | null
+  _base: any
+}
+
+export type DebuggerEvent = {
+  /**
+   * @internal
+   */
+  effect: any
+} & DebuggerEventExtraInfo
+
+export interface DebuggerEventExtraInfo {
+  target: object
+  type: TrackOpTypes | TriggerOpTypes
+  key?: any
+  newValue?: any
+  oldValue?: any
+}
+
+export const enum TrackOpTypes {
+  GET = 'get',
+  TOUCH = 'touch',
+}
+
+export const enum TriggerOpTypes {
+  SET = 'set',
+  ADD = 'add',
+  DELETE = 'delete',
+  ARRAY_MUTATION = 'array mutation',
+}

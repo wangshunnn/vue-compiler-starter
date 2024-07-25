@@ -18,7 +18,7 @@
       "compiler/*": ["src/compiler/*"]
     },
     "resolveJsonModule": true,
-    "types": ["node"],
+    "types": ["node", "vitest/globals"],
     "strict": true,
     "strictNullChecks": true,
     "noEmit": true,
@@ -28,6 +28,6 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["src", "packages/*/src"]
+  "include": ["src", "packages/*/src", "test"]
 
 }

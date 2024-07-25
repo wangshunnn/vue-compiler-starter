@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * Not type-checking this file because it's mostly vendor code.
  */
@@ -59,15 +57,41 @@ function decodeAttr(value: string, shouldDecodeNewlines?: boolean) {
 
 export interface HTMLParserOptions extends CompilerOptions {
   start?: (
+    /** 标签名，比如 div, text, .. */
     tag: string,
+    /** 标签属性 */
     attrs: ASTAttr[],
+    /** true 表示是自闭合标签，比如 <img/> */
     unary: boolean,
+    /** 开始位置索引 */
     start: number,
+    /** 结束位置索引 */
     end: number
   ) => void
-  end?: (tag: string, start: number, end: number) => void
-  chars?: (text: string, start?: number, end?: number) => void
-  comment?: (content: string, start: number, end: number) => void
+  end?: (
+    /** */
+    tag: string,
+    /** 开始位置索引 */
+    start: number,
+    /** 结束位置索引 */
+    end: number
+  ) => void
+  chars?: (
+    /** 文本内容 */
+    text: string,
+    /** 开始位置索引 */
+    start?: number,
+    /** 结束位置索引 */
+    end?: number
+  ) => void
+  comment?: (
+    /** 注释内容 */
+    content: string,
+    /** 开始位置索引 */
+    start: number,
+    /** 结束位置索引 */
+    end: number
+  ) => void
 }
 
 export function parseHTML(html: string, options: HTMLParserOptions) {
@@ -79,15 +103,17 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
   let last: string, lastTag: string
 
   while (html) {
-    console.log('[shun]---> html-while', html.replaceAll(' ', '#').replaceAll('\n', '@'))
+    // console.log('[shun]---> html-while', html.replaceAll(' ', '#').replaceAll('\n', '@'))
     last = html
+
     // Make sure we're not in a plaintext content element like script/style
+    /**  */
     if (!lastTag! || !isPlainTextElement(lastTag)) {
       let textEnd = html.indexOf('<')
 
-      /** `<` 打头 */
+      /** 1. `<` 打头 */
       if (textEnd === 0) {
-        // Comment: 普通注释, `<!--` 打头
+        /** 1.1 Comment: 普通注释, `<!--` 打头 */
         if (comment.test(html)) {
           const commentEnd = html.indexOf('-->')
 
@@ -104,7 +130,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
           }
         }
 
-        /** Conditional Comment: 条件注释, `<![` 打头 */
+        /** 1.2 Conditional Comment: 条件注释, `<![` 打头 */
         // https://en.wikipedia.org/wiki/Conditional_comment#Downlevel-revealed_conditional_comment
         if (conditionalComment.test(html)) {
           const conditionalEnd = html.indexOf(']>')
@@ -115,14 +141,14 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
           }
         }
 
-        /** Doctype: <!DOCTYPE> 声明 */
+        /** 1.3 Doctype: <!DOCTYPE> 声明 */
         const doctypeMatch = html.match(doctype)
         if (doctypeMatch) {
           advance(doctypeMatch[0].length)
           continue
         }
 
-        /** End tag: 结束标签 </xxx> */
+        /** 1.4 End tag: 结束标签 </xxx> */
         const endTagMatch = html.match(endTag)
         if (endTagMatch) {
           const curIndex = index
@@ -131,7 +157,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
           continue
         }
 
-        /** Start tag: 开始标签 <xxx>, 自闭合标签 <xxx/> */
+        /** 1.5 Start tag: 开始标签 <xxx>, 自闭合标签 <xxx/> */
         const startTagMatch = parseStartTag()
         if (startTagMatch) {
           handleStartTag(startTagMatch)
@@ -142,7 +168,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
         }
       }
 
-      /** 特判场景: 处理普通文本中的 < 符号 */
+      /** 2. 特判场景: 处理普通文本中的 < 符号 */
       let text, rest, next
       if (textEnd >= 0) {
         // 截取到以 < 开头
@@ -165,7 +191,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
         text = html.substring(0, textEnd)
       }
 
-      /** 没有 < 符号，那么直接视为普通文本 */
+      /** 3. 没有 < 符号，那么直接视为普通文本 */
       if (textEnd < 0) {
         text = html
       }
@@ -178,6 +204,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
         options.chars(text, index - text.length, index)
       }
     }
+    /**  */
     else {
       let endTagLength = 0
       const stackedTag = lastTag.toLowerCase()
@@ -235,7 +262,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
   function parseStartTag() {
     // start: ['<div', 'div', index: 0, ...]
     const start = html.match(startTagOpen)
-    console.log('[shun]---> start', start, html)
+    // console.log('[shun]---> start', start, html)
     if (start) {
       const match: any = {
         tagName: start[1],
@@ -244,7 +271,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
       }
       // 去掉标签名, html 往后走: <div class='' .. -> class='' ..
       advance(start[0].length)
-      console.log('[shun]---> start-1', html)
+      // console.log('[shun]---> start-1', html)
       let end: any, attr: any
       /**
        * 下面这段 while 用于处理 开始标签/自闭合标签 中的属性 attrs
@@ -261,7 +288,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
       }
       // 匹配到了 开始标签/自闭合标签 的右侧尖括号 `>` 或者 `/>`
       if (end) {
-        console.log('[shun] ---> end', end)
+        // console.log('[shun] ---> end', end)
         match.unarySlash = end[1]
         // 往后走
         advance(end[0].length)
@@ -273,6 +300,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
 
   function handleStartTag(match: any) {
     const tagName = match.tagName
+    // 非空则表示是自闭合标签
     const unarySlash = match.unarySlash
 
     if (expectHTML) {

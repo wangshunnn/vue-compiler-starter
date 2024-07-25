@@ -23,6 +23,7 @@ import {
   getRawBindingAttr,
   pluckModuleFunction,
 } from 'helpers2'
+import pico from 'picocolors'
 import { genAssignmentCode } from '../directives/model'
 import { parseHTML } from './html-parser'
 import { parseText } from './text-parser'
@@ -168,6 +169,8 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     }
   }
 
+  console.log('[template] -> \n', pico.bgWhite(template))
+
   parseHTML(template, {
     warn,
     expectHTML: options.expectHTML,
@@ -177,9 +180,12 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,
     shouldKeepComment: options.comments,
     outputSourceRange: options.outputSourceRange,
+    /** start 回调 */
     start(tag, attrs, unary, _start, _end) {
-      // check namespace.
-      // inherit parent ns if there is one
+      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgGreen(' start '), tag, attrs, unary, _start, _end)
+
+      // ns 是 namespace 简写,
+      // 如果父节点有的话就继承，否则根据 tag 创建
       const ns
         = (currentParent && currentParent.ns) || platformGetTagNamespace(tag)
 
@@ -189,6 +195,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         attrs = guardIESVGBug(attrs)
       }
 
+      // 创新新的 AST 节点
       let element: ASTElement = createASTElement(tag, attrs, currentParent)
       if (ns) {
         element.ns = ns
@@ -216,26 +223,33 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         processRawAttrs(element)
       }
       else if (!element.processed) {
-        // structural directives
+        // 处理结构体指令 v-for v-if v-once
         processFor(element)
         processIf(element)
         processOnce(element)
       }
 
+      // 根结点赋值
       if (!root) {
         root = element
       }
 
+      // 如果不是自闭合便签，压入栈
       if (!unary) {
+        // 更新父节点
         currentParent = element
+        // 入栈
         stack.push(element)
       }
+      // 是自闭合标签
       else {
         closeElement(element)
       }
     },
 
     end(_tag, _start, _end) {
+      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgRed(' end '), _tag, _start, _end)
+
       const element = stack[stack.length - 1]
       // pop stack
       stack.length -= 1
@@ -244,6 +258,8 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     },
 
     chars(text: string, _start?: number, _end?: number) {
+      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgCyan(' chars '), text, _start, _end)
+
       if (!currentParent) {
         return
       }
@@ -256,7 +272,11 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       ) {
         return
       }
+
+      // 文本节点只能是子节点，不可能是其他节点的父节点，
+      // 所以直接作为子节点挂载到当前父节点上
       const children = currentParent.children
+
       if (inPre || text.trim()) {
         text = isTextTag(currentParent)
           ? text
@@ -286,6 +306,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         }
         let res
         let child: ASTNode | undefined
+        // 如果是表达式文本 type=2
         if (!inVPre && text !== ' ' && (res = parseText(text, delimiters))) {
           child = {
             type: 2,
@@ -294,6 +315,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
             text,
           }
         }
+        // 普通文本 type=3
         else if (
           text !== ' '
           || !children.length
@@ -310,6 +332,8 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       }
     },
     comment(text: string, _start, _end) {
+      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgWhite(' chars '), text, _start, _end)
+
       // adding anything as a sibling to the root node is forbidden
       // comments should still be allowed, but ignored
       if (currentParent) {
@@ -323,7 +347,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     },
   })
 
-  // @ts-ignore parseHTML 里面赋值了
+  // @ts-ignore parseHTML 里面赋值了 root
   return root
 }
 
