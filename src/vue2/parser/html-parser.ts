@@ -11,6 +11,7 @@
 
 import type { ASTAttr, CompilerOptions } from 'types2'
 import { isNonPhrasingTag, makeMap, no, unicodeRegExp } from 'utils2'
+import pico from 'picocolors'
 
 // Regular Expressions for parsing tags and attributes
 const attribute
@@ -102,14 +103,19 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
   let index: number = 0
   let last: string, lastTag: string
 
+  // 测试日志用-循环次数
+  let num = 0
+
+  // 从左到右遍历 html
   while (html) {
-    // console.log('[shun]---> html-while', html.replaceAll(' ', '#').replaceAll('\n', '@'))
+    console.log(pico.bgGreen('html-while'), lastTag!, ++num, pico.gray(html.replaceAll(' ', '#').replaceAll('\n', '@')))
     last = html
 
     // Make sure we're not in a plaintext content element like script/style
-    /**  */
+    /** 非 script/style 标签内容 */
     if (!lastTag! || !isPlainTextElement(lastTag)) {
       let textEnd = html.indexOf('<')
+      console.log(pico.bgWhite('html-while') + pico.bgYellow(` ${textEnd} `))
 
       /** 1. `<` 打头 */
       if (textEnd === 0) {
@@ -160,6 +166,7 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
         /** 1.5 Start tag: 开始标签 <xxx>, 自闭合标签 <xxx/> */
         const startTagMatch = parseStartTag()
         if (startTagMatch) {
+          // 匹配到标签则触发 start 钩子
           handleStartTag(startTagMatch)
           if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) {
             advance(1)
@@ -196,15 +203,21 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
         text = html
       }
 
+      // 有文本内容直接步进截取
       if (text) {
         advance(text.length)
       }
 
+      // 前面匹配到文本那么触发 char 钩子
       if (options.chars && text) {
         options.chars(text, index - text.length, index)
       }
     }
-    /**  */
+    /**
+     * script、style、textarea 标签里的内容
+     * 可以完全看做文本，在本轮循环中和结束标签一起处理，
+     * 并且触发 char 钩子
+     */
     else {
       let endTagLength = 0
       const stackedTag = lastTag.toLowerCase()
@@ -262,7 +275,6 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
   function parseStartTag() {
     // start: ['<div', 'div', index: 0, ...]
     const start = html.match(startTagOpen)
-    // console.log('[shun]---> start', start, html)
     if (start) {
       const match: any = {
         tagName: start[1],
@@ -271,7 +283,6 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
       }
       // 去掉标签名, html 往后走: <div class='' .. -> class='' ..
       advance(start[0].length)
-      // console.log('[shun]---> start-1', html)
       let end: any, attr: any
       /**
        * 下面这段 while 用于处理 开始标签/自闭合标签 中的属性 attrs
@@ -288,7 +299,6 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
       }
       // 匹配到了 开始标签/自闭合标签 的右侧尖括号 `>` 或者 `/>`
       if (end) {
-        // console.log('[shun] ---> end', end)
         match.unarySlash = end[1]
         // 往后走
         advance(end[0].length)

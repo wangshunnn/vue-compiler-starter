@@ -6,6 +6,10 @@ import { extend } from 'utils2'
 import type { ASTElement, ASTExpression, ASTText } from 'vue2/types'
 import { baseOptions } from 'vue2/options'
 
+// const code = `<div><h1>hello</h1><text>{{name}}</text></div>`
+// const ast = parse(code, baseOptions)
+// console.log('[AST]', ast.children[1].children[0]!)
+
 describe('parser', () => {
   it('simple element', () => {
     const ast = parse('<h1>hello world</h1>', baseOptions)
