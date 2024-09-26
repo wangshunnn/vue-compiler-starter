@@ -61,7 +61,7 @@ export const no = (_a?: any, _b?: any, _c?: any) => false
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
  */
-export function noop(_a?: any, _b?: any, _c?: any) {}
+export function noop(_a?: any, _b?: any, _c?: any) { }
 
 export let tip = noop
 
@@ -355,3 +355,5 @@ export const isUnaryTag = makeMap(
   'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,'
   + 'link,meta,param,source,track,wbr',
 )
+
+export const isBuiltInTag = makeMap('slot,component', true)

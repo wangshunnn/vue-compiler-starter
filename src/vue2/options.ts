@@ -1,20 +1,19 @@
 import {
   canBeLeftOpenTag,
-  // genStaticKeys,
+  genStaticKeys,
   getTagNamespace,
   isPreTag,
   isReservedTag,
   isUnaryTag,
-  // modules,
   // directives,
   mustUseProp,
 } from 'utils2'
-
 import type { CompilerOptions } from 'types2'
+import modules from './modules'
 
 export const baseOptions: CompilerOptions = {
   expectHTML: true,
-  // modules,
+  modules,
   // directives,
   isPreTag,
   isUnaryTag,
@@ -22,5 +21,5 @@ export const baseOptions: CompilerOptions = {
   canBeLeftOpenTag,
   isReservedTag,
   getTagNamespace,
-  // staticKeys: genStaticKeys(modules),
+  staticKeys: genStaticKeys(modules),
 }

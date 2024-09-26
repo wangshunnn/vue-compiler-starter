@@ -1,8 +1,8 @@
 import type { MockInstance } from 'vitest'
 
 declare module 'vitest' {
-  interface Assertion<T = any> extends CustomMatchers<T> {}
-  interface AsymmetricMatchersContaining extends CustomMatchers {}
+  interface Assertion<T = any> extends CustomMatchers<T> { }
+  interface AsymmetricMatchersContaining extends CustomMatchers { }
 }
 
 interface CustomMatchers<R = unknown> {
@@ -11,7 +11,7 @@ interface CustomMatchers<R = unknown> {
   toHaveBeenWarnedTimes: (n: number) => R
 }
 
-vi.stubGlobal('MathMLElement', class MathMLElement {})
+vi.stubGlobal('MathMLElement', class MathMLElement { })
 
 let warn: MockInstance
 const asserted: Set<string> = new Set()
@@ -31,8 +31,7 @@ expect.extend({
       return {
         pass: false,
         message: () =>
-          `expected "${received}" to have been warned${
-          msgs.length
+          `expected "${received}" to have been warned${msgs.length
             ? `.\n\nActual messages:\n\n - ${msgs}`
             : ` but no warning was recorded.`}`,
       }
@@ -87,7 +86,7 @@ expect.extend({
 beforeEach(() => {
   asserted.clear()
   warn = vi.spyOn(console, 'warn')
-  warn.mockImplementation(() => {})
+  warn.mockImplementation(() => { })
 })
 
 afterEach(() => {

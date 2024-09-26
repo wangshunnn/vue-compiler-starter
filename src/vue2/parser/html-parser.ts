@@ -108,14 +108,14 @@ export function parseHTML(html: string, options: HTMLParserOptions) {
 
   // 从左到右遍历 html
   while (html) {
-    console.log(pico.bgGreen('html-while'), lastTag!, ++num, pico.gray(html.replaceAll(' ', '#').replaceAll('\n', '@')))
+    console.log(pico.bgGreen(' html-while '), lastTag!, ++num, pico.gray(html.replaceAll(' ', '#').replaceAll('\n', '@')))
     last = html
 
     // Make sure we're not in a plaintext content element like script/style
     /** 非 script/style 标签内容 */
     if (!lastTag! || !isPlainTextElement(lastTag)) {
       let textEnd = html.indexOf('<')
-      console.log(pico.bgWhite('html-while') + pico.bgYellow(` ${textEnd} `))
+      console.log(pico.bgWhite(' html-while ') + pico.bgYellow(` ${textEnd} `))
 
       /** 1. `<` 打头 */
       if (textEnd === 0) {

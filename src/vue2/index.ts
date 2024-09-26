@@ -1,7 +1,7 @@
 import type { CompiledResult, CompilerOptions, WarningMessage } from 'types2'
 import { extend, noop } from 'utils2'
 import { parse } from './parser/index'
-// import { optimize } from './optimizer'
+import { optimize } from './optimizer'
 // import { generate } from './codegen/index'
 
 /**
@@ -35,9 +35,9 @@ export const createCompiler = createCompilerCreator(function baseCompile(
   const ast = parse(template.trim(), options)
 
   // 2. 转换/优化
-  // if (options.optimize !== false) {
-  //   optimize(ast, options)
-  // }
+  if (options.optimize !== false) {
+    optimize(ast, options)
+  }
 
   // 3. 生成
   // const code = generate(ast, options)
@@ -64,7 +64,7 @@ export function createCompilerCreator(baseCompile: Function): Function {
         range: { start: number, end: number },
         tip: string,
       ) => {
-        ;(tip ? tips : errors).push(msg)
+        ; (tip ? tips : errors).push(msg)
       }
 
       if (options) {

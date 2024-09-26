@@ -127,7 +127,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
           // keep it in the children list so that v-else(-if) conditions can
           // find it as the prev node.
           const name = element.slotTarget || '"default"'
-          ;(currentParent.scopedSlots || (currentParent.scopedSlots = {}))[
+            ; (currentParent.scopedSlots || (currentParent.scopedSlots = {}))[
             name
           ] = element
         }
@@ -619,7 +619,7 @@ function processAttrs(el: ASTElement) {
       modifiers = parseModifiers(name.replace(dirRE, ''))
       // support .foo shorthand syntax for the .prop modifier
       if (process.env.VBIND_PROP_SHORTHAND && propBindRE.test(name)) {
-        ;(modifiers || (modifiers = {})).prop = true
+        ; (modifiers || (modifiers = {})).prop = true
         name = `.${name.slice(1).replace(modifierRE, '')}`
       }
       else if (modifiers) {
