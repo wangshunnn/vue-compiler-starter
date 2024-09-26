@@ -64,6 +64,7 @@
     "lint-staged": "^15.2.7",
     "pnpm": "^9.4.0",
     "rimraf": "^5.0.8",
+    "rollup-plugin-tsconfig-paths": "^1.5.2",
     "simple-git-hooks": "^2.11.1",
     "typescript": "^5.5.3",
     "unbuild": "^2.0.0",
