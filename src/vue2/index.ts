@@ -2,7 +2,7 @@ import type { CompiledResult, CompilerOptions, WarningMessage } from 'types2'
 import { extend, noop } from 'utils2'
 import { parse } from './parser/index'
 import { optimize } from './optimizer'
-// import { generate } from './codegen/index'
+import { generate } from './codegen/index'
 
 /**
  * - 利用 HOP 高阶函数设计模式来解耦“核心编译逻辑”和“胶水逻辑”
@@ -40,12 +40,12 @@ export const createCompiler = createCompilerCreator(function baseCompile(
   }
 
   // 3. 生成
-  // const code = generate(ast, options)
+  const code = generate(ast, options)
 
   return {
     ast,
-    render: '', // code.render,
-    staticRenderFns: [], // code.staticRenderFns,
+    render: code.render,
+    staticRenderFns: code.staticRenderFns,
   }
 })
 

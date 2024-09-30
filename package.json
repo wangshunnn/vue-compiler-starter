@@ -45,7 +45,8 @@
     "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "debug": "tsx test/vue2/parse.spec.ts"
   },
   "dependencies": {
     "de-indent": "^1.0.2"

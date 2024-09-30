@@ -23,7 +23,6 @@ import {
   getRawBindingAttr,
   pluckModuleFunction,
 } from 'helpers2'
-import pico from 'picocolors'
 import { genAssignmentCode } from '../directives/model'
 import { parseHTML } from './html-parser'
 import { parseText } from './text-parser'
@@ -169,7 +168,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     }
   }
 
-  console.log('[template] -> \n', pico.bgWhite(template))
+  // console.log('[template] -> \n', pico.bgWhite(template))
 
   parseHTML(template, {
     warn,
@@ -182,7 +181,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     outputSourceRange: options.outputSourceRange,
     /** start 回调 */
     start(tag, attrs, unary, _start, _end) {
-      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgGreen(' start '), tag, attrs, unary, _start, _end)
+      // console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgGreen(' start '), tag, attrs, unary, _start, _end)
 
       // ns 是 namespace 简写,
       // 如果父节点有的话就继承，否则根据 tag 创建
@@ -248,7 +247,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     },
 
     end(_tag, _start, _end) {
-      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgRed(' end '), _tag, _start, _end)
+      // console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgRed(' end '), _tag, _start, _end)
 
       const element = stack[stack.length - 1]
       // pop stack
@@ -258,7 +257,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
     },
 
     chars(text: string, _start?: number, _end?: number) {
-      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgCyan(' chars '), text, _start, _end)
+      // console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgCyan(' chars '), text, _start, _end)
 
       if (!currentParent) {
         return
@@ -332,7 +331,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
       }
     },
     comment(text: string, _start, _end) {
-      console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgWhite(' chars '), text, _start, _end)
+      // console.log(pico.bgMagenta(' [Lifecycle Hooks] ') + pico.bgWhite(' chars '), text, _start, _end)
 
       // adding anything as a sibling to the root node is forbidden
       // comments should still be allowed, but ignored

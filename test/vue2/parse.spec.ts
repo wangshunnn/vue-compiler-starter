@@ -1,15 +1,17 @@
 import { parse } from 'vue2/parser'
 import { optimize } from 'vue2/optimizer'
 import { baseOptions } from 'vue2/options'
+import { generate } from 'vue2/codegen'
 
-const code = `<div>
-  <span>world</span><h1>{{ msg }}</h1>
-</div>`
+// const template = `<div><div><span>hello</span></div>{{msg}}<div><span>world</span></div></div>`
+const template = `<div><span>hello</span></div>`
 // const code1 = `<h1 id="section1"><span>hello world</span></h1>`
-const ast = parse(code, baseOptions)
-console.log('[AST] before optimize', ast)
+const ast = parse(template, baseOptions)
+// console.log('[AST] before optimize', ast)
 optimize(ast, baseOptions)
-console.log('[AST] after optimize', ast, ast.children[1])
+console.log('[AST] after optimize', ast.children[0])
+const code = generate(ast, baseOptions)
+console.log('[CODE]', code)
 
 // describe('parser', () => {
 //   it('simple element', () => {
